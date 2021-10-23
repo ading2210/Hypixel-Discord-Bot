@@ -1,16 +1,26 @@
 from replit import db
 import discord, requests
 from discord.ext import commands
-import player, status, guild
+import player, status, guild, messages
 
 token = db["token"]
 hypixel_key = db["key-hypixel"]
 
-bot = commands.Bot(command_prefix="$")
+bot = commands.Bot(command_prefix="$", help_command=None)
 
 @bot.event
 async def on_ready():
   print(f'Bot connected as {bot.user}')
+
+@bot.command(name="help")
+async def helpCommand(ctx):
+  embed=discord.Embed(title="Command List:", color=0xffaa00)
+  embed.set_thumbnail(url="https://cdn.discordapp.com/icons/489529070913060867/f7df056de15eabfc0a0e178d641f812b.webp")
+  embed.add_field(name="Player Commands:", value=messages.helpPlayerCommands, inline=False)
+  embed.add_field(name="Guild Commands:", value=messages.helpGuildCommands, inline=False)
+  embed.set_footer(text="Bot made vk6#7391")
+
+  await ctx.send(embed=embed)
 
 @bot.command(name="uuid")
 async def getUuid(ctx, arg=None):
@@ -30,29 +40,22 @@ async def getProfile(ctx, name=None):
     await ctx.send("Invalid username or arguments.")
     return
   
-  hypixelProfile = player.getHypixelProfile(profile)
+  hypixelProfile = player.HypixelProfile(profile)
   name = profile["name"]
   uuid = profile["id"]
-  rank = player.getRank(hypixelProfile)
+  rank = hypixelProfile.rank()
   statusData = status.getStatus(profile)
 
   if statusData["online"] == True:
     currentGame = statusData["gameType"] + " - " + statusData["mode"]
+  
+  rankFormatted = hypixelProfile.rankFormatted()
+  lastGame = hypixelProfile.latestGame()
+  level = hypixelProfile.level()
+  firstJoin = hypixelProfile.firstJoin()
+  latestJoin = hypixelProfile.latestJoin()
 
-  if not rank == "NONE":
-    rankFormatted = "["+rank+"] "
-  else:
-    rankFormatted = ""
-  if "mostRecentGameType" in hypixelProfile:
-    lastGame = hypixelProfile["mostRecentGameType"]
-  else:
-    lastGame = "Unknown"
-
-  level = player.getLevel(hypixelProfile)
-  firstJoin = player.getFirstJoin(hypixelProfile)
-  latestJoin = player.getLatestJoin(hypixelProfile)
-
-  playerGuild = guild.getGuildByPlayer(profile)
+  playerGuild = guild.getGuildDictByPlayer(profile)
   if playerGuild == None:
     guildName = "None"
   else:
@@ -70,7 +73,7 @@ async def getProfile(ctx, name=None):
     embed.add_field(name="Last Game:", value="`"+lastGame+"`", inline=False)
   else:
     embed.add_field(name="Currently Playing:", value="`"+currentGame+"`", inline=False)
-  embed.set_footer(text="Made by vk6#7391")
+  embed.set_footer(text="Bot made by vk6#7391")
   
   await ctx.send(embed=embed)
 
@@ -88,7 +91,7 @@ async def getGuild(ctx, arg1=None, arg2=None):
     playerGuild = guild.Guild(player=playerProfile)
   guildDict = playerGuild.guildDict
   if guildDict == None:
-    await ctx.send("Invalid guild or player name.")
+    await ctx.send("Invalid guild or player name, or user is not part of any guild.")
     return
   guildName = playerGuild.name()
   tag = playerGuild.tag()
@@ -104,7 +107,7 @@ async def getGuild(ctx, arg1=None, arg2=None):
   embed.add_field(name="Level:", value="`"+str(level)+"`", inline=False)
   embed.add_field(name="Member Count:", value="`"+str(memberCount)+"/125"+"`", inline=False)
   embed.add_field(name="Date Created:", value="`"+createdDate+"`", inline=False)
-  embed.set_footer(text="Made by vk6#7391")
+  embed.set_footer(text="Bot made vk6#7391")
   await ctx.send(embed=embed)
   
 bot.run(token)
