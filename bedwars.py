@@ -16,6 +16,35 @@ gamemodeDict = {
   "castle": "castle",
   "4v4": "two_four"
 }
+deathMethods = [
+  "entity_attack",
+  "void",
+  "fall",
+  "projectile",
+  "magic",
+  "entity_explosion",
+  "fire_tick",
+  "suffocation"
+]
+finalDeathMethods = [
+  "entity_attack",
+  "void",
+  "fall",
+  "projectile",
+  "magic",
+  "entity_explosion",
+  "fire_tick"
+]
+killMethods = [
+  "entity_attack",
+  "void",
+  "fall",
+  "projectile",
+  "magic",
+  "entity_explosion",
+  "fire_tick"
+]
+finalKillMethods = killMethods
 
 def convertGamemode(gamemode):
   if gamemode in gamemodeDict:
@@ -134,9 +163,12 @@ class BedwarsStats():
       return self.profileDict["achievements"]["bedwars_level"]
     return 0
 
-  def winstreak(self):
-    if "winstreak" in self.statsDict:
-      return self.statsDict["winstreak"]
+  def winstreak(self,  mode=""):
+    key = "_".join([mode, "winstreak"])
+    if key.startswith("_"):
+      key = key.replace("_","",1)
+    if key in self.statsDict:
+      return self.statsDict[key]
     return 0
 
   def resourcesCollected(self, mode="", resourceType=""):

@@ -130,21 +130,22 @@ async def bedstats(ctx, arg1=None, arg2=None, arg3=None):
     await ctx.send("Username required.")
     return
   mode = bedwars.convertGamemode(arg2)
-  if arg2 == "misc":
+  if arg2 == "misc" or arg2 == "kills":
     if arg3 == None:
       mode = ""
       modeFormatted = "Overall"
     else:
       mode = bedwars.convertGamemode(arg3)
-  if arg2 == None or (arg2 == "misc" and not arg3 == None):
+      modeFormatted = arg3.replace("_"," ").title()
+  if arg2 == None or ((arg2 == "misc" or arg2 == "kills") and arg3 == None):
     modeFormatted = "Overall"
-  elif not arg2 == None and not arg2 == "misc":
+  elif not arg2 == None and not (arg2 == "misc" or arg2 == "kills"):
     modeFormatted = arg2.replace("_"," ").title()
     if mode == "":
       await returnModes(ctx)
       return
 
-  if arg3 == None and arg2 == "misc":
+  if arg3 == None and (arg2 == "misc" or arg2 == "kills"):
     modeFormatted = "Overall"
   elif not arg3 == None:
     if not arg3 in bedwars.gamemodeDict.keys():
@@ -185,26 +186,55 @@ async def bedstats(ctx, arg1=None, arg2=None, arg3=None):
   wlr = bedstats.wlr(mode=mode)
   wins = bedstats.wins(mode=mode)
   losses = bedstats.losses(mode=mode)
-  winstreak = bedstats.winstreak()
-
-  gamesPlayed = bedstats.gamesPlayed(mode=mode)
-  resourcesCollected = bedstats.resourcesCollected(mode=mode)
-  ironCollected = bedstats.resourcesCollected(mode=mode, resourceType="iron")
-  goldCollected = bedstats.resourcesCollected(mode=mode, resourceType="gold")
-  diamondsCollected = bedstats.resourcesCollected(mode=mode, resourceType="diamond")
-  emeraldsCollected = bedstats.resourcesCollected(mode=mode, resourceType="emerald")
-  resourcesCollectedString = messages.bedwarsResourcesCollected.format(total=str(resourcesCollected), iron=str(ironCollected), gold=str(goldCollected), diamonds=str(diamondsCollected), emeralds=str(emeraldsCollected))
-
-  itemsPurchased = bedstats.itemsPurchased(mode=mode)
-  itemsPurchasedPermanent = bedstats.itemsPurchasedPermanent(mode=mode)
-  itemsPurchacedString = messages.bedwarsItemsPurchased.format(total=itemsPurchased,permanent=itemsPurchasedPermanent)
+  winstreak = bedstats.winstreak(mode=mode)
 
   iconURL = config["webUrl"] + "/static/images/bedwars_icon.png"
   avatarURL = "https://mc-heads.net/body/{uuid}/50.png".format(uuid=uuid)
   embed=discord.Embed(title="Bedwars stats for `{level}{rank}{name}`:".format(name=name, rank=rank,level=levelFormatted), color=0xffaa00)
   embed.set_thumbnail(url=iconURL)
 
-  if not arg2 == "misc":
+  if arg2 == "misc":
+    gamesPlayed = bedstats.gamesPlayed(mode=mode)
+    resourcesCollected = bedstats.resourcesCollected(mode=mode)
+    ironCollected = bedstats.resourcesCollected(mode=mode, resourceType="iron")
+    goldCollected = bedstats.resourcesCollected(mode=mode, resourceType="gold")
+    diamondsCollected = bedstats.resourcesCollected(mode=mode, resourceType="diamond")
+    emeraldsCollected = bedstats.resourcesCollected(mode=mode, resourceType="emerald")
+    resourcesCollectedString = messages.bedwarsResourcesCollected.format(total=str(resourcesCollected), iron=str(ironCollected), gold=str(goldCollected), diamonds=str(diamondsCollected), emeralds=str(emeraldsCollected))
+
+    itemsPurchased = bedstats.itemsPurchased(mode=mode)
+    itemsPurchasedPermanent = bedstats.itemsPurchasedPermanent(mode=mode)
+    itemsPurchacedString = messages.bedwarsItemsPurchased.format(total=itemsPurchased,permanent=itemsPurchasedPermanent)
+
+    embed.add_field(name="Resources Collected:", value=resourcesCollectedString, inline=True)
+    embed.add_field(name=chr(173), value=chr(173), inline=True)
+    embed.add_field(name="Items Purchased:", value=itemsPurchacedString, inline=True)
+    
+    embed.add_field(name="Selected Mode:", value="`"+str(modeFormatted)+"`", inline=True)
+    embed.add_field(name=chr(173), value=chr(173), inline=True)
+    embed.add_field(name="Games Played:", value="`"+str(gamesPlayed)+"`")
+
+  elif arg2 == "kills":
+    def getKillMethodString(function, killMethods):
+      total = function(mode=mode)
+      killMethodsList = ["Total - `{total}`".format(total=str(total))]
+      for method in killMethods:
+        killsForMethod = function(mode=mode, cause=method)
+        killMethodsList.append("{methodFormatted} - `{count}`".format(methodFormatted=method.replace("_", " ").title(),count=str(killsForMethod)))
+      killMethodsString = "\n".join(killMethodsList)
+      return killMethodsString
+
+    embed.add_field(name="Kills:", value=getKillMethodString(bedstats.kills, bedwars.killMethods), inline=True)
+    embed.add_field(name=chr(173), value=chr(173), inline=True)
+    embed.add_field(name="Deaths:", value=getKillMethodString(bedstats.deaths, bedwars.deathMethods), inline=True)
+
+    embed.add_field(name="Final Kills:", value=getKillMethodString(bedstats.finalKills,bedwars.finalKillMethods), inline=True)
+    embed.add_field(name=chr(173), value=chr(173), inline=True)
+    embed.add_field(name="Final Deaths:", value=getKillMethodString(bedstats.finalDeaths, bedwars.finalDeathMethods), inline=True)
+
+    embed.add_field(name="Selected Mode:", value="`"+str(modeFormatted)+"`", inline=True)
+
+  elif not arg2 == "misc":
     embed.add_field(name="FKDR:", value="`"+str(fkdr)+"`", inline=True)
     embed.add_field(name="Final Kills:", value="`"+str(finalKills)+"`", inline=True)
     embed.add_field(name="Final Deaths:", value="`"+str(finalDeaths)+"`", inline=True)
@@ -219,15 +249,6 @@ async def bedstats(ctx, arg1=None, arg2=None, arg3=None):
     embed.add_field(name="Losses:", value="`"+str(losses)+"`", inline=True)
     embed.add_field(name="Selected Mode:", value="`"+str(modeFormatted)+"`", inline=True)
     embed.add_field(name="Winstreak:", value="`"+str(winstreak)+"`", inline=True)
-  else:
-    embed.add_field(name="Resources Collected:", value=resourcesCollectedString, inline=True)
-    embed.add_field(name=chr(173), value=chr(173), inline=True)
-    embed.add_field(name="Items Purchased:", value=itemsPurchacedString, inline=True)
-    
-    embed.add_field(name="Selected Mode:", value="`"+str(modeFormatted)+"`", inline=True)
-    embed.add_field(name=chr(173), value=chr(173), inline=True)
-    embed.add_field(name="Games Played:", value="`"+str(gamesPlayed)+"`")
-    
 
   embed.set_image(url=avatarURL)
   embed.set_footer(text="Bot made by vk6#7391")

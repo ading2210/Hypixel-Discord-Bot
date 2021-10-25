@@ -11,6 +11,7 @@ helpGuildCommands = """
 helpBedwarsCommands = """
 `$bedwars [player name] [mode]` - Displays a player's stats in Bedwars.
 `$bedwars [player name] misc [mode]` - Displays miscellaneous stats about a player.
+`$bedwars [player name] kills [mode]` - Displays stats about your kills and deaths.
 """
 
 bedWarsInvalidMode = """Invalid gamemode. List of valid gamemodes:
