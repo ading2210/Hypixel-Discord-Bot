@@ -19,7 +19,9 @@ def getProfileUuid(uuid):
     return {"error":"Invalid uuid"}
   return profile
 
-def getprofileDict(profile):
+def getprofileDict(profile=None, name=None):
+  if profile == None:
+    profile = getProfileName(name)
   uuid = profile["id"]
   r = requests.get("https://api.hypixel.net/player?key={key}&uuid={uuid}".format(key=hypixel_key, uuid=uuid))
   profileDict = r.json()["player"]

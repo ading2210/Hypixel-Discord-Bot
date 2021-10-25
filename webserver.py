@@ -9,5 +9,9 @@ log.setLevel(logging.ERROR)
 def hello_world():    
   return '[placeholder]'
 
+@app.route("/static/<path:path>")
+def serveStaticFile(path):
+  return send_from_directory("static", path)
+
 if __name__ == "__main__":
   app.run(host="0.0.0.0")
