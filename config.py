@@ -1,3 +1,5 @@
+webUrl="https://hypixel-discord-bot.uniqueostrich18.repl.co"
+
 helpPlayerCommands = """
 `$profile [player name]` - Displays general stats such as network level.
 `$uuid [player name]` - Displays UUID of a player.

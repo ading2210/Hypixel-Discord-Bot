@@ -1,11 +1,7 @@
 from replit import db
 import discord, requests, json
 from discord.ext import commands
-import player, status, guild, messages, bedwars
-
-configFile = open("config.json")
-config = json.load(configFile)
-configFile.close()
+import player, status, guild, config, bedwars
 
 token = db["token"]
 hypixel_key = db["key-hypixel"]
@@ -21,9 +17,9 @@ async def on_ready():
 async def helpCommand(ctx):
   embed=discord.Embed(title="Command List:", color=0xffaa00)
   embed.set_thumbnail(url="https://cdn.discordapp.com/icons/489529070913060867/f7df056de15eabfc0a0e178d641f812b.webp")
-  embed.add_field(name="Player Commands:", value=messages.helpPlayerCommands, inline=False)
-  embed.add_field(name="Guild Commands:", value=messages.helpGuildCommands, inline=False)
-  embed.add_field(name="Bedwars Commands:", value=messages.helpBedwarsCommands, inline=False) 
+  embed.add_field(name="Player Commands:", value=config.helpPlayerCommands, inline=False)
+  embed.add_field(name="Guild Commands:", value=config.helpGuildCommands, inline=False)
+  embed.add_field(name="Bedwars Commands:", value=config.helpBedwarsCommands, inline=False) 
   embed.set_footer(text="Bot made by vk6#7391")
 
   await ctx.send(embed=embed)
@@ -123,7 +119,7 @@ async def bedstats(ctx, arg1=None, arg2=None, arg3=None):
     for mode in bedwars.gamemodeDict.keys():
       modeList.append("- {mode}".format(mode=mode))
     modeListString = "\n".join(modeList)
-    await ctx.send(messages.bedWarsInvalidMode.format(modes=modeListString))
+    await ctx.send(config.bedWarsInvalidMode.format(modes=modeListString))
 
   modeFormatted = ""
   if arg1 == None:
@@ -188,7 +184,7 @@ async def bedstats(ctx, arg1=None, arg2=None, arg3=None):
   losses = bedstats.losses(mode=mode)
   winstreak = bedstats.winstreak(mode=mode)
 
-  iconURL = config["webUrl"] + "/static/images/bedwars_icon.png"
+  iconURL = config.webUrl + "/static/images/bedwars_icon.png"
   avatarURL = "https://mc-heads.net/body/{uuid}/50.png".format(uuid=uuid)
   embed=discord.Embed(title="Bedwars stats for `{level}{rank}{name}`:".format(name=name, rank=rank,level=levelFormatted), color=0xffaa00)
   embed.set_thumbnail(url=iconURL)
@@ -200,11 +196,11 @@ async def bedstats(ctx, arg1=None, arg2=None, arg3=None):
     goldCollected = bedstats.resourcesCollected(mode=mode, resourceType="gold")
     diamondsCollected = bedstats.resourcesCollected(mode=mode, resourceType="diamond")
     emeraldsCollected = bedstats.resourcesCollected(mode=mode, resourceType="emerald")
-    resourcesCollectedString = messages.bedwarsResourcesCollected.format(total=str(resourcesCollected), iron=str(ironCollected), gold=str(goldCollected), diamonds=str(diamondsCollected), emeralds=str(emeraldsCollected))
+    resourcesCollectedString = config.bedwarsResourcesCollected.format(total=str(resourcesCollected), iron=str(ironCollected), gold=str(goldCollected), diamonds=str(diamondsCollected), emeralds=str(emeraldsCollected))
 
     itemsPurchased = bedstats.itemsPurchased(mode=mode)
     itemsPurchasedPermanent = bedstats.itemsPurchasedPermanent(mode=mode)
-    itemsPurchacedString = messages.bedwarsItemsPurchased.format(total=itemsPurchased,permanent=itemsPurchasedPermanent)
+    itemsPurchacedString = config.bedwarsItemsPurchased.format(total=itemsPurchased,permanent=itemsPurchasedPermanent)
 
     embed.add_field(name="Resources Collected:", value=resourcesCollectedString, inline=True)
     embed.add_field(name=chr(173), value=chr(173), inline=True)
