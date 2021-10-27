@@ -11,6 +11,8 @@ gamemodeDict = {
   "lucky_doubles": "eight_two_lucky",
   "underworld_fours": "four_four_underworld",
   "underworld_doubles": "eight_two_underworld",
+  "armed_fours": "four_four_armed",
+  "armed_doubles": "eight_two_armed",
   "ultimate": "four_four_ultimate",
   "voidless": "four_four_voidless",
   "castle": "castle",

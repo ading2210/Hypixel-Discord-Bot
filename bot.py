@@ -1,7 +1,7 @@
 from replit import db
 import discord, requests, json
 from discord.ext import commands
-import player, status, guild, config, bedwars
+import player, status, guild, config, bedwars, friends
 
 token = db["token"]
 hypixel_key = db["key-hypixel"]
@@ -79,6 +79,56 @@ async def getProfile(ctx, name=None):
   
   await ctx.send(embed=embed)
 
+@bot.command(name="friends")
+async def getFriends(ctx, name=None, page=1):
+  if name == None:
+    await ctx.send("Player name required.")
+    return 
+  profile = player.getProfile(name)
+  if "error" in profile:
+    await ctx.send(config.errorTemplate.format(error=profile["error"]))
+    return
+  name = profile["name"]
+  uuid = profile["id"]
+  hypixelProfile = player.HypixelProfile(profile)
+  rank = hypixelProfile.rankFormatted()
+
+  message = await ctx.send("Loading friends list...")
+
+  playerFriends = friends.PlayerFriends(profile)
+  totalFriends = playerFriends.count()
+  totalPages = playerFriends.pages()
+
+  if page > totalPages or page < 0:
+    await message.edit(content="Invalid page number.")
+    return
+
+  friendsList = playerFriends.page(page=page)
+  friendsListDisplay = []
+  for friend in friendsList:
+    friendRank = friend.rankFormatted()
+    friendName = friend.name()
+    if friendRank == "":
+      friendsListDisplayItem = "- "+friendName
+    else:
+      friendsListDisplayItem = "- "+friendRank+friendName
+    friendsListDisplay.append(friendsListDisplayItem)
+  friendsListString = "\n".join(friendsListDisplay)
+
+  dateAddedList = []
+  for friend in friendsList:
+    dateAddedList.append(friend.dateAddedFormatted())
+  dateAddedString = "\n".join(dateAddedList)
+
+  avatarURL = "https://mc-heads.net/body/{uuid}/left/100.png".format(uuid=uuid)
+  embed=discord.Embed(title="Friends for `{rank}{name}`:".format(name=name, rank=rank), color=0xffaa00)
+  embed.add_field(name="Name:", value="```"+friendsListString+"```", inline=True)
+  embed.add_field(name="Date Added:", value="```"+dateAddedString+"```", inline=True)
+  embed.add_field(name="Page:", value="`{page}/{total}`".format(page=str(page), total=str(totalPages)), inline=False)
+  embed.set_thumbnail(url=avatarURL)
+  embed.set_footer(text="Bot made by vk6#7391")
+  await message.edit(embed=embed, content=None)
+
 @bot.command(name="guild")
 async def getGuild(ctx, arg1=None, arg2=None):
   name = arg1
@@ -115,7 +165,7 @@ async def getGuild(ctx, arg1=None, arg2=None):
 @bot.command(name="bedwars", aliases=["bw"])
 async def bedstats(ctx, arg1=None, arg2=None, arg3=None):
   async def returnModes(ctx):
-    modeList = []
+    modeList = ["\n"]
     for mode in bedwars.gamemodeDict.keys():
       modeList.append("- {mode}".format(mode=mode))
     modeListString = "\n".join(modeList)

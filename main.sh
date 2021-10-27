@@ -1,3 +1,6 @@
+#!/usr/bin/env bash
+set -e
+
 clear
 python3 install-packages.py
 python3 webserver.py & >/dev/null

@@ -19,10 +19,11 @@ def getProfileUuid(uuid):
     return {"error":"Invalid uuid"}
   return profile
 
-def getprofileDict(profile=None, name=None):
-  if profile == None:
+def getprofileDict(profile=None, name=None, uuid=None):
+  if not name == None:
     profile = getProfileName(name)
-  uuid = profile["id"]
+  if not profile == None:
+    uuid = profile["id"]
   r = requests.get("https://api.hypixel.net/player?key={key}&uuid={uuid}".format(key=hypixel_key, uuid=uuid))
   profileDict = r.json()["player"]
   return profileDict
@@ -34,8 +35,18 @@ def formattedTime(unixTimestamp):
   return formattedTime
 
 class HypixelProfile():
-  def __init__(self, profile=None):
-    self.profileDict = getprofileDict(profile)
+  def __init__(self, profile=None, uuid=None, profileDict=None):
+    if profile == None and uuid == None and profileDict == None:
+      raise Exception("No player provided.")
+    if profileDict == None:
+      self.profileDict = getprofileDict(profile)
+    else:
+      self.profileDict = profileDict
+
+  def name(self):
+    if "displayname" in self.profileDict:
+      return self.profileDict["displayname"]
+    return "Unknown"
 
   def rank(self):
     rankLocations = ["packageRank", "newPackageRank", "monthlyPackageRank", "rank"]
