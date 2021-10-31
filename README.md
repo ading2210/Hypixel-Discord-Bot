@@ -1,5 +1,5 @@
 ## Hypixel Discord Bot
-This is a discord bot that fetches stats for the Hypixel Minecraft server.
+This is a Discord bot that fetches stats for the Hypixel Minecraft server.
 
 This is designed to be run on Replit, and you can fork it [here](https://replit.com/@UniqueOstrich18/hypixel-discord-bot).
 
@@ -20,3 +20,7 @@ This is designed to be run on Replit, and you can fork it [here](https://replit.
 `$bedwars [player name] misc [mode]` - Displays miscellaneous stats about a player.
 
 `$bedwars [player name] kills [mode]` - Displays stats about your kills and deaths.
+
+### Todo:
+- Add commands for other minigames
+- Show quick buy menu and hotbar in bedwars

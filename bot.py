@@ -233,6 +233,7 @@ async def bedstats(ctx, arg1=None, arg2=None, arg3=None):
   wins = bedstats.wins(mode=mode)
   losses = bedstats.losses(mode=mode)
   winstreak = bedstats.winstreak(mode=mode)
+  coins = bedstats.coins()
 
   iconURL = config.webUrl + "/static/images/bedwars_icon.png"
   avatarURL = "https://mc-heads.net/body/{uuid}/50.png".format(uuid=uuid)
@@ -258,7 +259,8 @@ async def bedstats(ctx, arg1=None, arg2=None, arg3=None):
     
     embed.add_field(name="Selected Mode:", value="`"+str(modeFormatted)+"`", inline=True)
     embed.add_field(name=chr(173), value=chr(173), inline=True)
-    embed.add_field(name="Games Played:", value="`"+str(gamesPlayed)+"`")
+    embed.add_field(name="Games Played:", value="`"+str(gamesPlayed)+"`", inline=True)
+    embed.add_field(name="Coins", value="`"+str(coins)+"`", inline=True)
 
   elif arg2 == "kills":
     def getKillMethodString(function, killMethods):

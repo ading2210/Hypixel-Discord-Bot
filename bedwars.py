@@ -68,6 +68,12 @@ class BedwarsStats():
       raise KeyError("User has no stats.")
     self.statsDict = self.profileDict["stats"]["Bedwars"]
 
+  def coins(self):
+    key = "coins"
+    if key in self.statsDict:
+      return self.statsDict[key]
+    return 0
+
   def deaths(self, mode="", cause=""):
     key = "_".join([mode, cause, "deaths_bedwars"])
     key = key.replace("__","_")
