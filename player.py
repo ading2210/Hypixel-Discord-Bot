@@ -25,6 +25,8 @@ def getprofileDict(profile=None, name=None, uuid=None):
   if not profile == None:
     uuid = profile["id"]
   r = requests.get("https://api.hypixel.net/player?key={key}&uuid={uuid}".format(key=hypixel_key, uuid=uuid))
+  if r.status_code == 504:
+    return {"error":"Hypixel API is down or cannot be reached. Try again later."}
   profileDict = r.json()["player"]
   return profileDict
   #warning: returns a LOT of data
@@ -42,6 +44,9 @@ class HypixelProfile():
       self.profileDict = getprofileDict(profile)
     else:
       self.profileDict = profileDict
+
+    if "error" in self.profileDict:
+      raise Exception(self.profileDict["error"])
 
   def name(self):
     if "displayname" in self.profileDict:

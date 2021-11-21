@@ -9,10 +9,9 @@ def getGuildDictByPlayer(profile):
   return guildDict
 
 def getGuildDictByName(name):
-  r = requests.get("https://api.hypixel.net/guild?key={key}&name={name}".format(key=hypixel_key,name=name))
+  r = requests.get("https://api.hypixel.net/guild?key={key}&name={name}".format(key=hypixel_key,name=name))  
   guildDict = r.json()["guild"]
   return guildDict
-
 
 class Guild():
   def __init__(self, player=None, name=None, guildDict=None):

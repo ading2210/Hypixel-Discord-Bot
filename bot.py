@@ -24,6 +24,10 @@ async def helpCommand(ctx):
 
   await ctx.send(embed=embed)
 
+@bot.command(name="prefs")
+async def preferences(ctx, setting, value):
+  pass
+
 @bot.command(name="uuid")
 async def getUuid(ctx, arg=None):
   if arg == None:
@@ -42,7 +46,12 @@ async def getProfile(ctx, name=None):
     await ctx.send("Invalid username or arguments.")
     return
   
-  hypixelProfile = player.HypixelProfile(profile)
+  try:
+    hypixelProfile = player.HypixelProfile(profile)
+  except Exception as e:
+    await ctx.send(config.errorTemplate.format(error=str(e)))
+    return
+    
   name = profile["name"]
   uuid = profile["id"]
   rank = hypixelProfile.rank()
@@ -90,7 +99,11 @@ async def getFriends(ctx, name=None, page=1):
     return
   name = profile["name"]
   uuid = profile["id"]
-  hypixelProfile = player.HypixelProfile(profile)
+  try:
+    hypixelProfile = player.HypixelProfile(profile)
+  except Exception as e:
+    await ctx.send(config.errorTemplate.format(error=str(e)))
+    return
   rank = hypixelProfile.rankFormatted()
 
   message = await ctx.send("Loading friends list...")
@@ -203,9 +216,13 @@ async def bedstats(ctx, arg1=None, arg2=None, arg3=None):
   if not "id" in profile:
     await ctx.send("Invalid username or arguments.")
     return
-  hypixelProfile = player.HypixelProfile(profile)
   if "error" in profile:
     await ctx.send("Invalid username or arguments.")
+    return
+  try:
+    hypixelProfile = player.HypixelProfile(profile)
+  except Exception as e:
+    await ctx.send(config.errorTemplate.format(error=str(e)))
     return
   name = profile["name"]
   uuid = profile["id"]
