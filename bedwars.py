@@ -16,7 +16,9 @@ gamemodeDict = {
   "ultimate": "four_four_ultimate",
   "voidless": "four_four_voidless",
   "castle": "castle",
-  "4v4": "two_four"
+  "4v4": "two_four",
+  "swap_fours": "four_four_swap",
+  "swap_doubles": "eight_two_swap"
 }
 deathMethods = [
   "entity_attack",

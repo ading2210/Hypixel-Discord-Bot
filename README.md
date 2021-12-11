@@ -15,11 +15,11 @@ This is designed to be run on Replit, and you can fork it [here](https://replit.
 
 `$guild player [player name]` - Displays stats about the guild a player is in.
 
-`$bedwars [player name] [mode]` - Displays a player's stats in Bedwars.
+`$bedwars [player name] (mode)` - Displays a player's stats in Bedwars.
 
-`$bedwars [player name] misc [mode]` - Displays miscellaneous stats about a player.
+`$bedwars [player name] misc (mode)` - Displays miscellaneous stats about a player.
 
-`$bedwars [player name] kills [mode]` - Displays stats about your kills and deaths.
+`$bedwars [player name] kills (mode)` - Displays stats about your kills and deaths.
 
 ### Todo:
 - Add commands for other minigames
