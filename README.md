@@ -7,8 +7,6 @@ This is designed to be run on Replit, and you can fork it [here](https://replit.
 
 `$profile [player name]` - Displays general stats such as network level. 
 
-`$friends [player name] [page]` - Displays the friends of a player.
-
 `$uuid [player name]` - Displays UUID of a player.
 
 `$guild [guild name]` - Displays stats about a guild.

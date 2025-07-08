@@ -1,10 +1,19 @@
 import json
+import traceback
+import pathlib
 
 import discord
 import requests
 from discord.ext import commands
 
-import player, status, guild, config, bedwars, friends
+import player
+import status
+import guild
+import config
+import bedwars
+
+basePath = pathlib.Path(__file__).resolve().parent
+bedwarsIconPath = basePath / "static" / "images" / "bedwars_icon.png"
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -22,7 +31,7 @@ async def helpCommand(ctx):
   embed.add_field(name="Player Commands:", value=config.helpPlayerCommands, inline=False)
   embed.add_field(name="Guild Commands:", value=config.helpGuildCommands, inline=False)
   embed.add_field(name="Bedwars Commands:", value=config.helpBedwarsCommands, inline=False) 
-  embed.set_footer(text="Bot made by vk6#7391")
+  embed.set_footer(text=config.footerText)
 
   await ctx.send(embed=embed)
 
@@ -51,7 +60,7 @@ async def getProfile(ctx, name=None):
   try:
     hypixelProfile = player.HypixelProfile(profile)
   except Exception as e:
-    await ctx.send(config.errorTemplate.format(error=str(e)))
+    await ctx.send(config.errorTemplate.format(error=traceback.format_exc()))
     return
     
   name = profile["name"]
@@ -86,63 +95,9 @@ async def getProfile(ctx, name=None):
     embed.add_field(name="Last Game:", value="`"+lastGame+"`", inline=False)
   else:
     embed.add_field(name="Currently Playing:", value="`"+currentGame+"`", inline=False)
-  embed.set_footer(text="Bot made by vk6#7391")
+  embed.set_footer(text=config.footerText)
   
   await ctx.send(embed=embed)
-
-@bot.command(name="friends")
-async def getFriends(ctx, name=None, page=1):
-  if name == None:
-    await ctx.send("Player name required.")
-    return 
-  profile = player.getProfile(name)
-  if "error" in profile:
-    await ctx.send(config.errorTemplate.format(error=profile["error"]))
-    return
-  name = profile["name"]
-  uuid = profile["id"]
-  try:
-    hypixelProfile = player.HypixelProfile(profile)
-  except Exception as e:
-    await ctx.send(config.errorTemplate.format(error=str(e)))
-    return
-  rank = hypixelProfile.rankFormatted()
-
-  message = await ctx.send("Loading friends list...")
-
-  playerFriends = friends.PlayerFriends(profile)
-  totalFriends = playerFriends.count()
-  totalPages = playerFriends.pages()
-
-  if page > totalPages or page < 0:
-    await message.edit(content="Invalid page number.")
-    return
-
-  friendsList = playerFriends.page(page=page)
-  friendsListDisplay = []
-  for friend in friendsList:
-    friendRank = friend.rankFormatted()
-    friendName = friend.name()
-    if friendRank == "":
-      friendsListDisplayItem = "- "+friendName
-    else:
-      friendsListDisplayItem = "- "+friendRank+friendName
-    friendsListDisplay.append(friendsListDisplayItem)
-  friendsListString = "\n".join(friendsListDisplay)
-
-  dateAddedList = []
-  for friend in friendsList:
-    dateAddedList.append(friend.dateAddedFormatted())
-  dateAddedString = "\n".join(dateAddedList)
-
-  avatarURL = "https://mc-heads.net/body/{uuid}/left/100.png".format(uuid=uuid)
-  embed=discord.Embed(title="Friends for `{rank}{name}`:".format(name=name, rank=rank), color=0xffaa00)
-  embed.add_field(name="Name:", value="```"+friendsListString+"```", inline=True)
-  embed.add_field(name="Date Added:", value="```"+dateAddedString+"```", inline=True)
-  embed.add_field(name="Page:", value="`{page}/{total}`".format(page=str(page), total=str(totalPages)), inline=False)
-  embed.set_thumbnail(url=avatarURL)
-  embed.set_footer(text="Bot made by vk6#7391")
-  await message.edit(embed=embed, content=None)
 
 @bot.command(name="guild")
 async def getGuild(ctx, arg1=None, arg2=None):
@@ -162,7 +117,7 @@ async def getGuild(ctx, arg1=None, arg2=None):
     return
   guildName = playerGuild.name()
   tag = playerGuild.tag()
-  description = playerGuild.description()
+  description = playerGuild.description() or "None"
   createdDate = playerGuild.createdDateFormatted()
   memberCount = playerGuild.memberCount()
   level = playerGuild.level()
@@ -174,7 +129,7 @@ async def getGuild(ctx, arg1=None, arg2=None):
   embed.add_field(name="Member Count:", value="`"+str(memberCount)+"/125"+"`", inline=True)
   embed.add_field(name="Description:", value="`"+description+"`", inline=False)
   embed.add_field(name="Date Created:", value="`"+createdDate+"`", inline=False)
-  embed.set_footer(text="Bot made by vk6#7391")
+  embed.set_footer(text=config.footerText)
   await ctx.send(embed=embed)
 
 @bot.command(name="bedwars", aliases=["bw"])
@@ -224,7 +179,7 @@ async def bedstats(ctx, arg1=None, arg2=None, arg3=None):
   try:
     hypixelProfile = player.HypixelProfile(profile)
   except Exception as e:
-    await ctx.send(config.errorTemplate.format(error=str(e)))
+    await ctx.send(config.errorTemplate.format(error=traceback.format_exc()))
     return
   name = profile["name"]
   uuid = profile["id"]
@@ -232,8 +187,7 @@ async def bedstats(ctx, arg1=None, arg2=None, arg3=None):
   try:
     bedstats = bedwars.BedwarsStats(name=name)
   except KeyError as e:
-    error = "An error occured:\n```"+str(e).strip("'")+"```"
-    await ctx.send(error)
+    ctx.send(config.errorTemplate.format(error=traceback.format_exc()))
     return
 
   level = bedstats.level()
@@ -254,10 +208,10 @@ async def bedstats(ctx, arg1=None, arg2=None, arg3=None):
   winstreak = bedstats.winstreak(mode=mode)
   coins = bedstats.coins()
 
-  iconURL = config.webUrl + "/static/images/bedwars_icon.png"
   avatarURL = "https://mc-heads.net/body/{uuid}/50.png".format(uuid=uuid)
+  bedwarsIcon = discord.File(bedwarsIconPath, filename="bedwars_icon.png")
   embed=discord.Embed(title="Bedwars stats for `{level}{rank}{name}`:".format(name=name, rank=rank,level=levelFormatted), color=0xffaa00)
-  embed.set_thumbnail(url=iconURL)
+  embed.set_thumbnail(url="attachment://bedwars_icon.png")
 
   if arg2 == "misc":
     gamesPlayed = bedstats.gamesPlayed(mode=mode)
@@ -318,8 +272,8 @@ async def bedstats(ctx, arg1=None, arg2=None, arg3=None):
     embed.add_field(name="Winstreak:", value="`"+str(winstreak)+"`", inline=True)
 
   embed.set_image(url=avatarURL)
-  embed.set_footer(text="Bot made by vk6#7391")
+  embed.set_footer(text=config.footerText)
 
-  await ctx.send(embed=embed)
+  await ctx.send(embed=embed, file=bedwarsIcon)
   
 bot.run(config.discordToken) 
