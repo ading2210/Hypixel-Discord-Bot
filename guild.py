@@ -1,15 +1,18 @@
-import requests, replit, player, math
+import math
 
-hypixel_key = replit.db["key-hypixel"]
+import requests
+
+import player
+import config
 
 def getGuildDictByPlayer(profile):
   uuid = profile["id"]
-  r = requests.get("https://api.hypixel.net/guild?key={key}&player={uuid}".format(key=hypixel_key,uuid=uuid))
+  r = requests.get("https://api.hypixel.net/guild?key={key}&player={uuid}".format(key=config.hypixelKey,uuid=uuid))
   guildDict = r.json()["guild"]
   return guildDict
 
 def getGuildDictByName(name):
-  r = requests.get("https://api.hypixel.net/guild?key={key}&name={name}".format(key=hypixel_key,name=name))  
+  r = requests.get("https://api.hypixel.net/guild?key={key}&name={name}".format(key=config.hypixelKey,name=name))  
   guildDict = r.json()["guild"]
   return guildDict
 

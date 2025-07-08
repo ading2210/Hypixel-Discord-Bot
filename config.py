@@ -1,9 +1,13 @@
-import replit
+import os
+
+import dotenv
+
+dotenv.load_dotenv()
 
 webUrl="https://hypixel-discord-bot.uniqueostrich18.repl.co"
 
-hypixelKey = replit.db["key-hypixel"]
-#hypixelKey = "yourkey"
+discordToken = os.environ["DISCORD_TOKEN"]
+hypixelKey = os.environ["HYPIXEL_TOKEN"]
 
 helpPlayerCommands = """
 `$profile [player name]` - Displays general stats such as network level.

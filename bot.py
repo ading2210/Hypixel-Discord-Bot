@@ -1,13 +1,15 @@
-from replit import db
-import discord, requests, json
+import json
+
+import discord
+import requests
 from discord.ext import commands
+
 import player, status, guild, config, bedwars, friends
 
-token = db["token"]
-hypixel_key = db["key-hypixel"]
-
+intents = discord.Intents.default()
+intents.message_content = True
 activity = discord.Activity(type=discord.ActivityType.watching, name="$help")
-bot = commands.Bot(command_prefix="$", help_command=None, activity=activity)
+bot = commands.Bot(command_prefix="$", help_command=None, activity=activity, intents=intents)
 
 @bot.event
 async def on_ready():
@@ -320,4 +322,4 @@ async def bedstats(ctx, arg1=None, arg2=None, arg3=None):
 
   await ctx.send(embed=embed)
   
-bot.run(token) 
+bot.run(config.discordToken) 

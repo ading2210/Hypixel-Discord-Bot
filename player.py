@@ -1,7 +1,9 @@
-import requests, math, replit
 from datetime import datetime
+import math
 
-hypixel_key = replit.db["key-hypixel"]
+import requests
+
+import config
 
 def getProfile(name):
   r = requests.get("https://api.mojang.com/users/profiles/minecraft/{name}".format(name=name))
@@ -24,12 +26,11 @@ def getprofileDict(profile=None, name=None, uuid=None):
     profile = getProfileName(name)
   if not profile == None:
     uuid = profile["id"]
-  r = requests.get("https://api.hypixel.net/player?key={key}&uuid={uuid}".format(key=hypixel_key, uuid=uuid))
+  r = requests.get("https://api.hypixel.net/player?key={key}&uuid={uuid}".format(key=config.hypixelKey, uuid=uuid))
   if r.status_code == 504:
     return {"error":"Hypixel API is down or cannot be reached. Try again later."}
   profileDict = r.json()["player"]
   return profileDict
-  #warning: returns a LOT of data
 
 def formattedTime(unixTimestamp):
   timeObject = datetime.utcfromtimestamp(unixTimestamp)
